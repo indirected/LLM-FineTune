@@ -25,7 +25,7 @@ def main(cfg):
         torchinfo.summary(model)
 
     dataset = utils.prepare_data(cfg.data)
-    eval_dataset = dataset[cfg.eval.eval_split].select(range(4))
+    eval_dataset = dataset[cfg.eval.eval_split]
     data_dict = eval_dataset.to_dict()
 
     ground_truth = eval_dataset[cfg.data.dataset.label_field]
