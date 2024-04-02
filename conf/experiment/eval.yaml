@@ -5,7 +5,7 @@ defaults:
 eval:
   combine_peft: true
   peft_path: './trained_models/llama-2-7b-chat/final'
-
+  eval_split: 'val'
   results_path: './results'
 
   metrics:
@@ -28,6 +28,8 @@ eval:
         _target_: evaluate.load
         path: "evaluate-metric/bertscore"
       compute_fn: "compute"
+      compute_args:
+        model_type: 'bert-base-uncased'
       target_key: "f1"
 
     CodeBlEU:
