@@ -1,5 +1,5 @@
 import datasets
-from OmegaConf import DictConfig
+from omegaconf import DictConfig
 import hydra
 import torch
 
@@ -18,3 +18,11 @@ def prepare_data(datacfg: DictConfig) -> datasets.DatasetDict:
     })
 
     return dataset
+
+def prepare_model_and_tokenizer(modelcfg: DictConfig) -> tuple:
+    model = hydra.utils.instantiate(modelcfg.model_HF_cls)
+    tokenizer = hydra.utils.instantiate(modelcfg.tokenizer_HF_cls)
+    tokenizer.pad_token = tokenizer.eos_token
+    model.resize_token_embeddings(len(tokenizer), pad_to_multiple_of=8)
+
+    return model, tokenizer

@@ -6,11 +6,12 @@ defaults:
 peft_config:
   HF_cls:
     _target_: peft.LoraConfig
-    r: 64
-    lora_alpha: 16
+    r: 8
+    lora_alpha: 4
     lora_dropout: 0.1
     bias: "none"
     task_type: "CAUSAL_LM"
+    target_modules: "all-linear"
 
 
 trainer_args:
@@ -36,5 +37,3 @@ wandb:
 
 
 save_to: './trained_models/'
-
-tmp: 'fake'

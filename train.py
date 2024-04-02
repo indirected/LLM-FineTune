@@ -22,13 +22,11 @@ def main(cfg):
     os.environ["WANDB_LOG_MODEL"] = cfg.wandb.log_model
     os.environ["WANDB_WATCH"] = cfg.wandb.wandb_watch
 
-    accelerator = accelerate.Accelerator()
+    # accelerator = accelerate.Accelerator()
 
     dataset = utils.prepare_data(cfg.data)
 
-    model = hydra.utils.instantiate(cfg.model.model_HF_cls)
-    tokenizer = hydra.utils.instantiate(cfg.model.tokenizer_HF_cls)
-    tokenizer.pad_token = tokenizer.eos_token
+    model, tokenizer = utils.prepare_model_and_tokenizer(cfg.model)
 
     peft_config = hydra.utils.instantiate(cfg.peft_config.HF_cls)
     trainer_args = hydra.utils.instantiate(
@@ -43,10 +41,15 @@ def main(cfg):
         peft_config=peft_config,
         train_dataset=dataset['train'],
         eval_dataset=dataset['val'],
-        dataset_text_field='text'
+        dataset_text_field='text',
+        dataset_kwargs={
+            "append_concat_token": False,
+            "add_special_tokens": False,
+        }
     )
 
-    if accelerator.is_local_main_process:
+    # if accelerator.is_local_main_process:
+    if trainer.accelerator.is_local_main_process:
         torchinfo.summary(trainer.model)
 
     trainer.train()
@@ -54,8 +57,9 @@ def main(cfg):
 
     save_path = os.path.join(cfg.save_to, cfg.model.name, 'final')
 
-    trainer.model.save_pretrained(save_path)
-    trainer.tokenizer.save_pretrained(save_path)
+    trainer.save_model(save_path)
+
+    
 
 
 if __name__ == "__main__":
